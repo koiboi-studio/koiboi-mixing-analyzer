@@ -401,7 +401,8 @@ function drawSpec(b){const c=$('#spec'),x=c.getContext('2d'),W=c.width,H=c.heigh
 // ---------- chat ----------
 const q=$('#q'),log=$('#log'),engine=$('#engine'),estatus=$('#estatus'),gkey=$('#gkey');
 let HASBACKEND=false;
-const DIRECT=['gemini','deepseek']; // callable straight from the browser (CORS ok)
+const DIRECT=['gemini','deepseek','claude']; // callable straight from the browser (CORS ok); OpenAI blocks CORS
+const KEYHINT={gemini:'Gemini key (AIza… / AQ…)',deepseek:'DeepSeek key (sk-…)',claude:'Anthropic key (sk-ant-…)'};
 engine.value=localStorage.getItem('koi_engine')||'gemini';
 function loadKey(){gkey.value=localStorage.getItem('koi_key_'+engine.value)||'';}
 loadKey();
@@ -414,6 +415,7 @@ function syncUI(){
   loadKey();
   const direct=!HASBACKEND&&DIRECT.includes(engine.value);
   gkey.style.display=direct?'block':'none';
+  gkey.placeholder=(KEYHINT[engine.value]||'API key')+' — stored in your browser only';
   if(HASBACKEND) estatus.textContent='';
   else estatus.textContent=DIRECT.includes(engine.value)?'hosted · paste key':'hosted · needs local backend';
 }
@@ -442,6 +444,16 @@ async function directCall(eng,text){
     const j=await r.json();
     if(j.error) throw new Error(j.error.message||'DeepSeek error');
     return j.choices[0].message.content;
+  }
+  if(eng==='claude'){
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:'POST',
+      headers:{'content-type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01',
+               'anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-opus-4-8',max_tokens:700,system:sys,
+        messages:[{role:'user',content:text}]})});
+    const j=await r.json();
+    if(j.error) throw new Error(j.error.message||'Claude error');
+    return j.content[0].text;
   }
   // gemini: retry + fallback across models when overloaded
   const body=JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text}]}]});
