@@ -17,8 +17,15 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--txt);
-  font-family:"JetBrains Mono",ui-monospace,monospace;-webkit-font-smoothing:antialiased}
+body{margin:0;color:var(--txt);font-family:"JetBrains Mono",ui-monospace,monospace;
+  -webkit-font-smoothing:antialiased;position:relative;
+  background:
+    radial-gradient(900px 600px at 85% -5%, rgba(31,214,201,.10), transparent 60%),
+    radial-gradient(800px 600px at 5% 8%, rgba(255,90,31,.12), transparent 60%),
+    radial-gradient(1200px 800px at 50% 120%, rgba(120,40,255,.07), transparent 60%),
+    #05060a}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.wrap,nav .wrap{position:relative}
 .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
 a{color:inherit;text-decoration:none}
 
@@ -27,8 +34,21 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
   background:rgba(0,0,0,.72);border-bottom:1px solid var(--line)}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:600}
-.koi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:17px;
-  background:linear-gradient(135deg,var(--koi),var(--koid));box-shadow:0 4px 18px rgba(255,90,31,.4)}
+.koi{width:34px;height:38px;display:grid;place-items:center;
+  filter:drop-shadow(0 3px 10px rgba(255,90,31,.55))}
+.koi .koi-svg{width:100%;height:100%}
+/* koi animation */
+.koi-swim{transform-origin:50px 55px;animation:koiSwim 5s ease-in-out infinite}
+@keyframes koiSwim{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.koi-tail{transform-origin:50px 80px;animation:koiTail 1.4s ease-in-out infinite}
+@keyframes koiTail{0%,100%{transform:rotate(-11deg)}50%{transform:rotate(11deg)}}
+.koi-finL{transform-origin:38px 44px;animation:koiTail 1.5s ease-in-out infinite}
+.koi-finR{transform-origin:62px 44px;animation:koiTail 1.5s ease-in-out infinite reverse}
+/* hero koi */
+.herokoi{width:clamp(110px,16vw,168px);margin:0 auto 14px;
+  filter:drop-shadow(0 10px 40px rgba(255,90,31,.55)) drop-shadow(0 0 30px rgba(31,214,201,.25));
+  animation:bob 5.5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .brand b{font-weight:700}.brand span{color:var(--mut);font-weight:400}
 .pill{background:#fff;color:#000;border:0;padding:8px 20px;border-radius:999px;font-family:inherit;
   font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 1px 0 #ddd inset,0 4px 14px rgba(255,255,255,.06)}
@@ -41,9 +61,12 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);
   border:1px solid var(--line2);border-radius:999px;padding:6px 14px;margin-bottom:26px}
 .eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--koi);box-shadow:0 0 10px var(--koi)}
-h1{font-size:clamp(38px,7vw,82px);font-weight:800;line-height:1.02;margin:0 0 22px;letter-spacing:-2px}
-h1 em{font-style:normal;background:linear-gradient(120deg,var(--koi2),var(--koi),var(--teal));
-  -webkit-background-clip:text;background-clip:text;color:transparent}
+h1{font-size:clamp(38px,7vw,82px);font-weight:800;line-height:1.02;margin:0 0 22px;letter-spacing:-2px;
+  filter:drop-shadow(0 6px 34px rgba(255,90,31,.3))}
+h1 em{font-style:normal;background:linear-gradient(120deg,#ffb066,var(--koi),#ff2d78,var(--teal),#37e6db);
+  background-size:280% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:hue 9s ease infinite}
+@keyframes hue{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .lead{color:var(--mut);font-size:16px;max-width:560px;margin:0 auto 34px;line-height:1.6}
 .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .btn-koi{background:linear-gradient(135deg,var(--koi),var(--koid));color:#fff;border:0;
@@ -154,16 +177,36 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
 </style>
 </head>
 <body>
+<canvas id="stars"></canvas>
 
 <nav><div class="wrap">
-  <div class="brand"><div class="koi">🐟</div><span>KOIBOI</span> <b>Mixing AI Analyzer</b></div>
+  <div class="brand"><div class="koi">
+    <svg class="koi-svg" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="kbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9d6"/><stop offset="35%" stop-color="#ff7a33"/><stop offset="100%" stop-color="#e64a12"/></linearGradient>
+        <linearGradient id="kfin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#37e6db"/><stop offset="100%" stop-color="#13a89e"/></linearGradient>
+      </defs>
+      <g class="koi-swim">
+        <g class="koi-tail"><path fill="url(#kfin)" opacity=".85" d="M50,78 C43,92 39,99 35,107 C46,101 50,97 50,97 C50,97 54,101 65,107 C61,99 57,92 50,78 Z"/></g>
+        <path class="koi-finL" fill="url(#kfin)" opacity=".8" d="M37,42 C22,42 12,50 8,60 C20,57 30,53 39,49 Z"/>
+        <path class="koi-finR" fill="url(#kfin)" opacity=".8" d="M63,42 C78,42 88,50 92,60 C80,57 70,53 61,49 Z"/>
+        <path fill="url(#kbody)" d="M50,6 C64,6 70,20 70,34 C70,50 64,64 50,82 C36,64 30,50 30,34 C30,20 36,6 50,6 Z"/>
+        <path fill="#fff" opacity=".22" d="M50,12 C58,12 62,22 62,34 C62,48 57,60 50,74 C43,60 38,48 38,34 C38,22 42,12 50,12 Z"/>
+        <ellipse cx="50" cy="27" rx="9" ry="7" fill="#e23a0e" opacity=".9"/>
+        <ellipse cx="45" cy="52" rx="6" ry="8" fill="#e23a0e" opacity=".8"/>
+        <ellipse cx="57" cy="60" rx="4" ry="5" fill="#ffd24d" opacity=".85"/>
+        <circle cx="43" cy="18" r="2.4" fill="#141414"/><circle cx="57" cy="18" r="2.4" fill="#141414"/>
+        <circle cx="43.8" cy="17.2" r=".8" fill="#fff"/><circle cx="57.8" cy="17.2" r=".8" fill="#fff"/>
+      </g>
+    </svg>
+  </div><span>KOIBOI</span> <b>Mixing AI Analyzer</b></div>
   <button class="pill" onclick="document.getElementById('app').scrollIntoView()">Try it now</button>
 </div></nav>
 
 <!-- HERO -->
 <header class="hero">
-  <canvas id="bgwave"></canvas>
   <div class="wrap">
+    <div class="herokoi" id="herokoi"></div>
     <div class="eyebrow"><span class="dot"></span> AI mixing analysis · runs in your browser</div>
     <h1>KOIBOI<br><em>Mixing AI Analyzer</em></h1>
     <p class="lead">Drop a track. Get instant feedback on mix quality, frequency balance, dynamics and stereo image — then ask the AI exactly what to fix.</p>
@@ -304,13 +347,35 @@ const $=s=>document.querySelector(s);
 let report=null, peaks=null;
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 
-// ---------- hero bg waveform ----------
-(function(){const c=$('#bgwave');function fit(){c.width=c.clientWidth;c.height=c.clientHeight;}
-  fit();addEventListener('resize',fit);const x=c.getContext('2d');let t=0;
-  (function loop(){x.clearRect(0,0,c.width,c.height);const W=c.width,H=c.height,bars=140,bw=W/bars;
-    for(let i=0;i<bars;i++){const n=Math.sin(i*.25+t)*.5+Math.sin(i*.6-t*1.3)*.3+Math.random()*.15;
-      const h=Math.abs(n)*H*.42;x.fillStyle='rgba(255,90,31,'+(.05+Math.abs(n)*.12)+')';
-      x.fillRect(i*bw,H/2-h/2,bw*.5,h);}t+=.03;requestAnimationFrame(loop);})();})();
+// clone the koi mark into the hero
+$('#herokoi').innerHTML=document.querySelector('.koi .koi-svg').outerHTML;
+
+// ---------- particle field background ----------
+(function(){
+  const c=$('#stars'),x=c.getContext('2d');
+  function fit(){c.width=innerWidth;c.height=innerHeight;}
+  fit();addEventListener('resize',fit);
+  const N=Math.min(150,Math.floor(innerWidth*innerHeight/11000));
+  const cols=['#cdd6e2','#cdd6e2','#cdd6e2','#ff7a33','#37e6db'];
+  const P=[...Array(N)].map(()=>({x:Math.random()*c.width,y:Math.random()*c.height,
+    z:Math.random(),r:Math.random()*1.7+.4,vx:(Math.random()-.5)*.14,vy:(Math.random()-.5)*.14,
+    col:cols[(Math.random()*cols.length)|0]}));
+  let mx=.5,my=.5;
+  addEventListener('mousemove',e=>{mx=e.clientX/innerWidth;my=e.clientY/innerHeight;});
+  (function loop(){
+    x.clearRect(0,0,c.width,c.height);
+    for(let i=0;i<P.length;i++){const a=P[i];
+      a.x+=a.vx+(mx-.5)*a.z*.4; a.y+=a.vy+(my-.5)*a.z*.4;
+      if(a.x<-5)a.x=c.width; if(a.x>c.width+5)a.x=0; if(a.y<-5)a.y=c.height; if(a.y>c.height+5)a.y=0;
+      for(let j=i+1;j<P.length;j++){const b=P[j],dx=a.x-b.x,dy=a.y-b.y,d=dx*dx+dy*dy;
+        if(d<9500){x.strokeStyle='rgba(255,122,51,'+(.10*(1-d/9500))+')';x.lineWidth=.6;
+          x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}}
+      x.globalAlpha=.35+a.z*.6;x.fillStyle=a.col;x.beginPath();x.arc(a.x,a.y,a.r,0,7);x.fill();x.globalAlpha=1;
+    }
+    requestAnimationFrame(loop);
+  })();
+})();
+// ponytail: O(n²) link pass at N≈150 is ~11k checks/frame — fine; spatial grid only if N grows
 
 // ---------- file ----------
 const drop=$('#drop'),fileIn=$('#file');
