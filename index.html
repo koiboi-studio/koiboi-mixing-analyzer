@@ -147,6 +147,36 @@ h2{font-size:clamp(28px,4.5vw,46px);font-weight:700;text-align:center;margin:0 0
   border-radius:50%;animation:s .7s linear infinite;vertical-align:-1px}
 @keyframes s{to{transform:rotate(360deg)}}
 
+/* STUDIO: context bar + tabs + reference + history */
+.ctxbar{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:22px}
+.ctxbar label{display:flex;flex-direction:column;gap:5px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
+.ctxbar select,.ctxbar input{background:#0a0a0a;border:1px solid var(--line2);color:var(--txt);
+  font-family:inherit;font-size:13px;padding:8px 11px;border-radius:9px;min-width:140px}
+.ctxbar select:focus,.ctxbar input:focus{outline:0;border-color:var(--koi)}
+.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid var(--line2);color:var(--mut);font-family:inherit;
+  font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;transition:.15s}
+.tab:hover{color:var(--txt)}
+.tab.on{background:linear-gradient(135deg,var(--koi),var(--koid));color:#fff;border-color:transparent;font-weight:600}
+.refgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.refgrid{grid-template-columns:1fr}}
+.refcol{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px}
+.refcol h4{margin:0 0 12px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
+.minidrop{border:2px dashed var(--line2);border-radius:12px;padding:30px 12px;text-align:center;
+  cursor:pointer;font-size:13px;color:var(--mut);transition:.15s}
+.minidrop.hot,.minidrop:hover{border-color:var(--koi);color:var(--txt)}
+.minidrop.done{border-style:solid;border-color:var(--good);color:var(--txt)}
+.miniread{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-top:14px}
+.miniread div{font-size:11px;color:var(--mut)}.miniread b{color:var(--txt);font-weight:600}
+#cmpBtn{margin:20px auto 0;display:block}
+#cmpBtn:disabled{opacity:.4;cursor:not-allowed}
+.revcard{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:13px 16px;
+  margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.revcard .rn{font-size:13px;font-weight:600}.revcard .rd{font-size:11px;color:var(--dim)}
+.revcard .rm{font-size:11px;color:var(--mut);display:flex;gap:14px;flex-wrap:wrap}
+.revcard .rm b{color:var(--koi2)}
+.revempty{text-align:center;color:var(--dim);padding:30px;border:1px dashed var(--line2);border-radius:12px}
+
 /* FEATURES */
 .feat{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:0 auto}
 @media(max-width:700px){.feat{grid-template-columns:1fr}}
@@ -217,71 +247,122 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
   </div>
 </header>
 
-<!-- ANALYZER -->
+<!-- STUDIO -->
 <section id="app">
   <div class="wrap">
-    <div class="player">
-      <div id="dropState">
-        <div id="drop">
-          <div class="ic">🎚️</div>
-          <b>Drop audio here, or click to browse</b>
-          <small>WAV · MP3 · AIFF · FLAC — analyzed locally, never uploaded</small>
-        </div>
-      </div>
-      <div id="playState" style="display:none">
-        <div class="ptop">
-          <div class="pfile">Selected file:<br><b id="fname">—</b></div>
-          <button class="play" id="play">▶</button>
-        </div>
-        <canvas id="wave" width="1040" height="130"></canvas>
-        <div class="ttl"><span id="tcur">0:00</span><span id="tdur">0:00</span></div>
-        <div class="tags" id="tags"></div>
-      </div>
-      <input id="file" type="file" accept="audio/*" hidden>
-      <audio id="player" hidden></audio>
-    </div>
-    <div id="status"></div>
+    <div class="label">Studio</div>
+    <h2>Analyze your mix</h2>
 
-    <div id="resCard" style="display:none">
-      <div class="readout" id="meters"></div>
-      <div class="specwrap">
-        <h3>Frequency Balance</h3>
-        <canvas id="spec" width="1040" height="200"></canvas>
-        <div class="bandlbl">
-          <span>20</span><span>60</span><span>120</span><span>250</span><span>500</span>
-          <span>1k</span><span>2k</span><span>4k</span><span>8k</span><span>16k</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CHAT -->
-<section style="padding-top:0">
-  <div class="wrap">
-    <div class="label">ChatGPT for mixing</div>
-    <h2>Ask the AI</h2>
-    <p class="sectsub">Your in-house mix engineer, fed your measured numbers. Ask anything — it answers with frequencies and dB.</p>
-    <div class="chatcard">
-      <div class="enginebar">
-        <span>Engine</span>
-        <select id="engine">
-          <option value="gemini">Gemini</option>
-          <option value="claude">Claude</option>
-          <option value="codex">Codex</option>
-          <option value="deepseek">DeepSeek</option>
-          <option value="openclaw">OpenClaw</option>
+    <!-- mix profile / context (fed to the AI) -->
+    <div class="ctxbar">
+      <label>Genre
+        <select id="genre">
+          <option>Psytrance</option><option>EDM</option><option>Techno</option><option>House</option>
+          <option>Pop</option><option>Hip Hop</option><option>Rock</option><option>Metal</option>
+          <option>RnB</option><option>Blues</option><option>Jazz</option><option>Country</option>
+          <option>Classical</option><option>Cinematic</option><option>Ambient</option>
         </select>
-        <input id="gkey" type="password" placeholder="Gemini key (AQ… / AIza…) — stored in your browser only">
-        <em id="estatus"></em>
+      </label>
+      <label>DAW <input id="daw" placeholder="Bitwig"></label>
+      <label>Plugins <input id="plugins" placeholder="Pro-Q, Ozone…"></label>
+      <label>Reply in
+        <select id="lang"><option>English</option><option>Hebrew</option><option>Spanish</option><option>Portuguese</option><option>German</option><option>Polish</option></select>
+      </label>
+    </div>
+
+    <!-- tabs -->
+    <div class="tabs">
+      <button class="tab on" data-tab="feedback">🎚️ Mix Feedback</button>
+      <button class="tab" data-tab="reference">🎯 Reference Compare</button>
+      <button class="tab" data-tab="history">🕓 History</button>
+    </div>
+
+    <!-- FEEDBACK TAB -->
+    <div class="tabpane" id="tab-feedback">
+      <div class="player">
+        <div id="dropState">
+          <div id="drop">
+            <div class="ic">🎚️</div>
+            <b>Drop audio here, or click to browse</b>
+            <small>WAV · MP3 · AIFF · FLAC — analyzed locally, never uploaded</small>
+          </div>
+        </div>
+        <div id="playState" style="display:none">
+          <div class="ptop">
+            <div class="pfile">Selected file:<br><b id="fname">—</b></div>
+            <button class="play" id="play">▶</button>
+          </div>
+          <canvas id="wave" width="1040" height="130"></canvas>
+          <div class="ttl"><span id="tcur">0:00</span><span id="tdur">0:00</span></div>
+          <div class="tags" id="tags"></div>
+        </div>
+        <input id="file" type="file" accept="audio/*" hidden>
+        <audio id="player" hidden></audio>
       </div>
-      <div id="log">
-        <div class="msg a">Drop a track above, then ask me anything — <b>"how's the low end?"</b>, <b>"loud enough for streaming?"</b>, <b>"what do I fix first?"</b></div>
+      <div id="status"></div>
+
+      <div id="resCard" style="display:none">
+        <div class="readout" id="meters"></div>
+        <div class="specwrap">
+          <h3>Frequency Balance</h3>
+          <canvas id="spec" width="1040" height="200"></canvas>
+          <div class="bandlbl">
+            <span>20</span><span>60</span><span>120</span><span>250</span><span>500</span>
+            <span>1k</span><span>2k</span><span>4k</span><span>8k</span><span>16k</span>
+          </div>
+        </div>
       </div>
-      <div id="inrow">
-        <textarea id="q" rows="1" placeholder="Ask about your mix…"></textarea>
-        <button class="btn-koi" id="send">Send</button>
+
+      <div class="chatcard">
+        <div class="enginebar">
+          <span>Engine</span>
+          <select id="engine">
+            <option value="gemini">Gemini</option>
+            <option value="claude">Claude</option>
+            <option value="codex">Codex</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="openclaw">OpenClaw</option>
+          </select>
+          <input id="gkey" type="password" placeholder="Gemini key (AQ… / AIza…) — stored in your browser only">
+          <em id="estatus"></em>
+        </div>
+        <div id="log">
+          <div class="msg a">Drop a track above, then ask me anything — <b>"how's the low end?"</b>, <b>"loud enough for streaming?"</b>, <b>"what do I fix first?"</b></div>
+        </div>
+        <div id="inrow">
+          <textarea id="q" rows="1" placeholder="Ask about your mix…"></textarea>
+          <button class="btn-koi" id="send">Send</button>
+        </div>
       </div>
+    </div>
+
+    <!-- REFERENCE TAB -->
+    <div class="tabpane" id="tab-reference" style="display:none">
+      <p class="sectsub" style="margin-bottom:22px">Drop your mix and a professional reference. The AI explains exactly why yours differs and how to close the gap.</p>
+      <div class="refgrid">
+        <div class="refcol">
+          <h4>Your mix</h4>
+          <div class="minidrop" id="dropA">Drop / click — your track</div>
+          <div class="miniread" id="readA"></div>
+        </div>
+        <div class="refcol">
+          <h4>Reference</h4>
+          <div class="minidrop" id="dropB">Drop / click — reference</div>
+          <div class="miniread" id="readB"></div>
+        </div>
+      </div>
+      <input id="fileA" type="file" accept="audio/*" hidden>
+      <input id="fileB" type="file" accept="audio/*" hidden>
+      <button class="btn-koi" id="cmpBtn" disabled>Compare with AI →</button>
+      <div class="chatcard cmpout" id="cmpOut" style="display:none;margin-top:18px">
+        <div id="cmplog"></div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div class="tabpane" id="tab-history" style="display:none">
+      <p class="sectsub" style="margin-bottom:22px">Every analysis from this browser. Nothing leaves your device.</p>
+      <div id="revlist"><div class="revempty">No analyses yet — run one in Mix Feedback.</div></div>
     </div>
   </div>
 </section>
@@ -396,6 +477,7 @@ async function handle(file){
   buildPeaks(audio);drawWave(0);drawSpec(report.bandNorm);renderMeters(report);renderTags();
   $('#resCard').style.display='block';
   $('#status').textContent='✓ '+file.name+' · '+report.dur.toFixed(1)+'s · '+(audio.sampleRate/1000)+'kHz · '+(audio.numberOfChannels>1?'stereo':'mono');
+  saveRev(report);
 }
 
 // ---------- analysis ----------
@@ -490,19 +572,30 @@ engine.onchange=()=>{localStorage.setItem('koi_engine',engine.value);syncUI();};
 q.addEventListener('input',()=>{q.style.height='auto';q.style.height=Math.min(120,q.scrollHeight)+'px';});
 q.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask();}});
 $('#send').onclick=ask;
-function add(role,txt){const d=document.createElement('div');d.className='msg '+role;
+function add(role,txt,box){box=box||log;const d=document.createElement('div');d.className='msg '+role;
   d.innerHTML=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
-  log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+  box.appendChild(d);box.scrollTop=box.scrollHeight;return d;}
 function summary(r){if(!r)return'No track analyzed yet.';
   return `Track: ${r.name} (${r.dur.toFixed(1)}s, ${r.channels>1?'stereo':'mono'}, ${r.sr}Hz)
 Loudness: ${r.lufs.toFixed(1)} LUFS | True peak: ${r.dbPeak.toFixed(1)} dB | Crest: ${r.crest.toFixed(1)} dB
 Stereo width: ${r.width}% (corr ${r.corr.toFixed(2)})
 Tonal balance vs loudest band: low(20-120)=${r.low.toFixed(1)}dB, mid(500-2k)=${r.mid.toFixed(1)}dB, high(4-16k)=${r.hi.toFixed(1)}dB
 10 bands [20,60,120,250,500,1k,2k,4k,8k,16k]: ${r.bandNorm.map(v=>v.toFixed(1)).join(', ')}`;}
-async function directCall(eng,text){
+function ctxLine(){
+  const g=$('#genre').value,d=$('#daw').value.trim(),p=$('#plugins').value.trim(),l=$('#lang').value;
+  let s='Genre: '+g+'.';
+  if(d) s+=' DAW: '+d+'.';
+  if(p) s+=' Plugins on the mix bus / used: '+p+'.';
+  if(l&&l!=='English') s+=' IMPORTANT: reply in '+l+'.';
+  return s;
+}
+function buildSys(sumText){
+  return "You are KOIBOI's in-house mix engineer — sharp, specific, no fluff. Give concrete EQ/dynamics/stereo moves with frequencies and dB, referencing the measured data. Keep it tight.\n\nCONTEXT: "+ctxLine()+"\n\nMEASURED:\n"+sumText;
+}
+async function directCall(eng,text,sumText){
   const k=gkey.value.trim();
   if(!k) throw new Error('Paste your '+eng+' API key above.');
-  const sys="You are KOIBOI's in-house mix engineer — sharp, specific, no fluff. The user is a psytrance/electronic producer. Give concrete EQ/dynamics/stereo moves with frequencies and dB, referencing the measured data. Keep it tight.\n\nMEASURED:\n"+summary(report);
+  const sys=buildSys(sumText);
   if(eng==='deepseek'){
     const r=await fetch("https://api.deepseek.com/v1/chat/completions",{method:'POST',
       headers:{'content-type':'application/json','authorization':'Bearer '+k},
@@ -539,26 +632,86 @@ async function directCall(eng,text){
   }
   throw new Error(lastErr||'Gemini unavailable');
 }
+async function runAI(text,sumText){
+  if(HASBACKEND){
+    const res=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({engine:engine.value,message:text,summary:"CONTEXT: "+ctxLine()+"\n\n"+sumText})});
+    const j=await res.json();
+    if(j.error) throw new Error(j.error);
+    return j.reply;
+  }
+  if(DIRECT.includes(engine.value)) return directCall(engine.value,text,sumText);
+  throw new Error(engine.value+' needs the local backend (./run.sh).');
+}
 async function ask(){
   const text=q.value.trim();if(!text)return;
   add('u',text);q.value='';q.style.height='auto';
   const wait=add('a','');wait.innerHTML='<span class="spin"></span>';
-  try{
-    let reply;
-    if(HASBACKEND){
-      const res=await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
-        body:JSON.stringify({engine:engine.value,message:text,summary:summary(report)})});
-      const j=await res.json();
-      if(j.error) throw new Error(j.error);
-      reply=j.reply;
-    } else if(DIRECT.includes(engine.value)){
-      reply=await directCall(engine.value,text); // hosted → call straight from browser
-    } else {
-      throw new Error(engine.value+' needs the local backend (./run.sh).');
-    }
-    wait.remove();add('a',reply);
-  }catch(e){wait.remove();add('a','⚠ '+e.message);}
+  try{ const reply=await runAI(text,summary(report)); wait.remove();add('a',reply); }
+  catch(e){wait.remove();add('a','⚠ '+e.message);}
 }
+
+// ---------- tabs ----------
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  document.querySelectorAll('.tabpane').forEach(p=>p.style.display=p.id==='tab-'+t.dataset.tab?'block':'none');
+  if(t.dataset.tab==='history') renderRevs();
+});
+
+// ---------- shared decode helper ----------
+async function decodeAnalyze(file){
+  const ac=new (window.AudioContext||window.webkitAudioContext)();
+  const audio=await ac.decodeAudioData(await file.arrayBuffer());
+  return analyze(audio,file.name);
+}
+
+// ---------- revision history ----------
+function saveRev(r){
+  const revs=JSON.parse(localStorage.getItem('koi_revs')||'[]');
+  revs.unshift({name:r.name,t:Date.now(),genre:$('#genre').value,
+    lufs:+r.lufs.toFixed(1),peak:+r.dbPeak.toFixed(1),crest:+r.crest.toFixed(1),width:r.width});
+  localStorage.setItem('koi_revs',JSON.stringify(revs.slice(0,40)));
+}
+function renderRevs(){
+  const revs=JSON.parse(localStorage.getItem('koi_revs')||'[]'),el=$('#revlist');
+  if(!revs.length){el.innerHTML='<div class="revempty">No analyses yet — run one in Mix Feedback.</div>';return;}
+  el.innerHTML=revs.map(v=>`<div class="revcard">
+    <div><div class="rn">${v.name}</div><div class="rd">${new Date(v.t).toLocaleString()} · ${v.genre}</div></div>
+    <div class="rm"><span>LUFS <b>${v.lufs}</b></span><span>Peak <b>${v.peak}</b></span><span>Crest <b>${v.crest}</b></span><span>Width <b>${v.width}%</b></span></div>
+  </div>`).join('')
+    +'<div style="text-align:center;margin-top:8px"><button class="btn-ghost" id="clrRev">Clear history</button></div>';
+  $('#clrRev').onclick=()=>{localStorage.removeItem('koi_revs');renderRevs();};
+}
+
+// ---------- reference comparison ----------
+let repA=null,repB=null;
+function wireMini(dropId,fileId,readId,set){
+  const d=$(dropId),f=$(fileId);
+  d.onclick=()=>f.click();
+  ['dragover','dragenter'].forEach(e=>d.addEventListener(e,v=>{v.preventDefault();d.classList.add('hot');}));
+  ['dragleave','drop'].forEach(e=>d.addEventListener(e,v=>{v.preventDefault();d.classList.remove('hot');}));
+  d.addEventListener('drop',v=>{v.preventDefault();if(v.dataTransfer.files[0])loadMini(v.dataTransfer.files[0]);});
+  f.onchange=()=>f.files[0]&&loadMini(f.files[0]);
+  async function loadMini(file){
+    d.textContent='Analyzing '+file.name+'…';
+    const r=await decodeAnalyze(file);set(r);
+    d.classList.add('done');d.textContent='✓ '+file.name;
+    $(readId).innerHTML=`<div>LUFS <b>${r.lufs.toFixed(1)}</b></div><div>Peak <b>${r.dbPeak.toFixed(1)} dB</b></div>
+      <div>Crest <b>${r.crest.toFixed(1)} dB</b></div><div>Width <b>${r.width}%</b></div>`;
+    if(repA&&repB)$('#cmpBtn').disabled=false;
+  }
+}
+wireMini('#dropA','#fileA','#readA',r=>repA=r);
+wireMini('#dropB','#fileB','#readB',r=>repB=r);
+$('#cmpBtn').onclick=async()=>{
+  $('#cmpOut').style.display='block';const cl=$('#cmplog');
+  add('u','Compare my mix to the reference.',cl);
+  const wait=add('a','',cl);wait.innerHTML='<span class="spin"></span>';
+  const sum='MY MIX:\n'+summary(repA)+'\n\nREFERENCE:\n'+summary(repB);
+  try{ const reply=await runAI('Compare my mix to the reference track above. Explain the key differences (loudness, low/mid/high balance, dynamics, stereo width) and give exact moves to get mine closer to the reference.',sum);
+    wait.remove();add('a',reply,cl); }
+  catch(e){wait.remove();add('a','⚠ '+e.message,cl);}
+};
 </script>
 </body>
 </html>
