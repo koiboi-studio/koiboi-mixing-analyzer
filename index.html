@@ -401,17 +401,21 @@ function drawSpec(b){const c=$('#spec'),x=c.getContext('2d'),W=c.width,H=c.heigh
 // ---------- chat ----------
 const q=$('#q'),log=$('#log'),engine=$('#engine'),estatus=$('#estatus'),gkey=$('#gkey');
 let HASBACKEND=false;
+const DIRECT=['gemini','deepseek']; // callable straight from the browser (CORS ok)
 engine.value=localStorage.getItem('koi_engine')||'gemini';
-gkey.value=localStorage.getItem('koi_gkey')||'';
-gkey.oninput=()=>localStorage.setItem('koi_gkey',gkey.value);
+function loadKey(){gkey.value=localStorage.getItem('koi_key_'+engine.value)||'';}
+loadKey();
+gkey.oninput=()=>localStorage.setItem('koi_key_'+engine.value,gkey.value);
 fetch('/api/engines').then(r=>r.json()).then(m=>{HASBACKEND=true;
   for(const o of engine.options){const e=m[o.value];if(e){o.textContent=e.label+(e.ready?' ✓':' (no key)');}}
   syncUI();
 }).catch(()=>{HASBACKEND=false;syncUI();});
 function syncUI(){
-  // hosted (no backend): only Gemini works (direct from browser), show key box
-  gkey.style.display=(!HASBACKEND&&engine.value==='gemini')?'block':'none';
-  estatus.textContent=HASBACKEND?'':'hosted · Gemini only';
+  loadKey();
+  const direct=!HASBACKEND&&DIRECT.includes(engine.value);
+  gkey.style.display=direct?'block':'none';
+  if(HASBACKEND) estatus.textContent='';
+  else estatus.textContent=DIRECT.includes(engine.value)?'hosted · paste key':'hosted · needs local backend';
 }
 engine.onchange=()=>{localStorage.setItem('koi_engine',engine.value);syncUI();};
 q.addEventListener('input',()=>{q.style.height='auto';q.style.height=Math.min(120,q.scrollHeight)+'px';});
@@ -426,10 +430,20 @@ Loudness: ${r.lufs.toFixed(1)} LUFS | True peak: ${r.dbPeak.toFixed(1)} dB | Cre
 Stereo width: ${r.width}% (corr ${r.corr.toFixed(2)})
 Tonal balance vs loudest band: low(20-120)=${r.low.toFixed(1)}dB, mid(500-2k)=${r.mid.toFixed(1)}dB, high(4-16k)=${r.hi.toFixed(1)}dB
 10 bands [20,60,120,250,500,1k,2k,4k,8k,16k]: ${r.bandNorm.map(v=>v.toFixed(1)).join(', ')}`;}
-async function geminiDirect(text){
+async function directCall(eng,text){
   const k=gkey.value.trim();
-  if(!k) throw new Error('Add your Gemini key above (aistudio.google.com/app/apikey).');
+  if(!k) throw new Error('Paste your '+eng+' API key above.');
   const sys="You are KOIBOI's in-house mix engineer — sharp, specific, no fluff. The user is a psytrance/electronic producer. Give concrete EQ/dynamics/stereo moves with frequencies and dB, referencing the measured data. Keep it tight.\n\nMEASURED:\n"+summary(report);
+  if(eng==='deepseek'){
+    const r=await fetch("https://api.deepseek.com/v1/chat/completions",{method:'POST',
+      headers:{'content-type':'application/json','authorization':'Bearer '+k},
+      body:JSON.stringify({model:'deepseek-chat',max_tokens:700,
+        messages:[{role:'system',content:sys},{role:'user',content:text}]})});
+    const j=await r.json();
+    if(j.error) throw new Error(j.error.message||'DeepSeek error');
+    return j.choices[0].message.content;
+  }
+  // gemini: retry + fallback across models when overloaded
   const body=JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text}]}]});
   const models=['gemini-2.0-flash','gemini-flash-latest','gemini-2.5-flash-lite','gemini-2.5-flash'];
   let lastErr='';
@@ -458,8 +472,10 @@ async function ask(){
       const j=await res.json();
       if(j.error) throw new Error(j.error);
       reply=j.reply;
+    } else if(DIRECT.includes(engine.value)){
+      reply=await directCall(engine.value,text); // hosted → call straight from browser
     } else {
-      reply=await geminiDirect(text); // hosted static site → call Gemini straight from browser
+      throw new Error(engine.value+' needs the local backend (./run.sh).');
     }
     wait.remove();add('a',reply);
   }catch(e){wait.remove();add('a','⚠ '+e.message);}
