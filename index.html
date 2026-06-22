@@ -44,10 +44,11 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 @keyframes koiTail{0%,100%{transform:rotate(-11deg)}50%{transform:rotate(11deg)}}
 .koi-finL{transform-origin:38px 44px;animation:koiTail 1.5s ease-in-out infinite}
 .koi-finR{transform-origin:62px 44px;animation:koiTail 1.5s ease-in-out infinite reverse}
-/* hero koi */
-.herokoi{width:clamp(110px,16vw,168px);margin:0 auto 14px;
-  filter:drop-shadow(0 10px 40px rgba(255,90,31,.55)) drop-shadow(0 0 30px rgba(31,214,201,.25));
-  animation:bob 5.5s ease-in-out infinite}
+/* hero koi video */
+.herovid{width:clamp(220px,34vw,400px);aspect-ratio:1;margin:0 auto 18px;display:block;
+  object-fit:cover;border-radius:26px;border:1px solid rgba(255,122,51,.25);
+  box-shadow:0 24px 80px rgba(255,90,31,.35),0 0 60px rgba(31,214,201,.18),inset 0 0 60px rgba(0,0,0,.4);
+  animation:bob 6s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .brand b{font-weight:700}.brand span{color:var(--mut);font-weight:400}
 .pill{background:#fff;color:#000;border:0;padding:8px 20px;border-radius:999px;font-family:inherit;
@@ -206,7 +207,7 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
 <!-- HERO -->
 <header class="hero">
   <div class="wrap">
-    <div class="herokoi" id="herokoi"></div>
+    <video class="herovid" src="koi.mp4" autoplay loop muted playsinline></video>
     <div class="eyebrow"><span class="dot"></span> AI mixing analysis · runs in your browser</div>
     <h1>KOIBOI<br><em>Mixing AI Analyzer</em></h1>
     <p class="lead">Drop a track. Get instant feedback on mix quality, frequency balance, dynamics and stereo image — then ask the AI exactly what to fix.</p>
@@ -346,9 +347,6 @@ function fft(re,im){const n=re.length;
 const $=s=>document.querySelector(s);
 let report=null, peaks=null;
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
-
-// clone the koi mark into the hero
-$('#herokoi').innerHTML=document.querySelector('.koi .koi-svg').outerHTML;
 
 // ---------- particle field background ----------
 (function(){
