@@ -156,6 +156,7 @@ h2{font-size:clamp(28px,4.5vw,46px);font-weight:700;text-align:center;margin:0 0
 .ctxbar select,.ctxbar input{background:#0a0a0a;border:1px solid var(--line2);color:var(--txt);
   font-family:inherit;font-size:13px;padding:8px 11px;border-radius:9px;min-width:140px}
 .ctxbar select:focus,.ctxbar input:focus{outline:0;border-color:var(--koi)}
+.ctxbar input::placeholder{color:#4a4a4a;font-style:italic}
 .tabs{display:flex;gap:8px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
 .tab{background:transparent;border:1px solid var(--line2);color:var(--mut);font-family:inherit;
   font-size:13px;padding:9px 16px;border-radius:999px;cursor:pointer;transition:.15s}
@@ -316,8 +317,8 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
           <option>Classical</option><option>Cinematic</option><option>Ambient</option>
         </select>
       </label>
-      <label>DAW <input id="daw" placeholder="Bitwig"></label>
-      <label>Plugins <input id="plugins" placeholder="Pro-Q, Ozone…"></label>
+      <label>DAW <input id="daw" placeholder="e.g. Bitwig"></label>
+      <label>Plugins <input id="plugins" placeholder="e.g. Pro-Q, Ozone"></label>
       <label>Reply in
         <select id="lang"><option>English</option><option>Hebrew</option><option>Spanish</option><option>Portuguese</option><option>German</option><option>Polish</option></select>
       </label>
