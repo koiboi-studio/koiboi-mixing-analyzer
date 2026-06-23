@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<title>KOIBOI Mixing AI Analyzer</title>
+<title>KOIBOI Mixing & Mastering Analyzer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -176,6 +176,37 @@ h2{font-size:clamp(28px,4.5vw,46px);font-weight:700;text-align:center;margin:0 0
 .revcard .rm{font-size:11px;color:var(--mut);display:flex;gap:14px;flex-wrap:wrap}
 .revcard .rm b{color:var(--koi2)}
 .revempty{text-align:center;color:var(--dim);padding:30px;border:1px dashed var(--line2);border-radius:12px}
+.revscore{width:44px;height:44px;border:2px solid;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px;flex:none}
+
+/* REPORT */
+#report{margin-top:26px}
+.reptop{display:flex;gap:24px;align-items:center;border:1px solid var(--line);background:var(--panel2);
+  border-radius:16px;padding:22px;flex-wrap:wrap}
+.ring{position:relative;width:130px;height:130px;flex:none}
+.ring svg{width:130px;height:130px}
+.ringnum{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringnum b{font-size:38px;line-height:1}.ringnum span{font-size:11px;color:var(--mut)}
+.breakdown{flex:1;min-width:240px;display:flex;flex-direction:column;gap:10px}
+.catrow{display:flex;align-items:center;gap:12px;font-size:12px}
+.catrow span{width:110px;color:var(--mut)}
+.catrow .cbar{flex:1;height:8px;background:#1c1c1c;border-radius:6px;overflow:hidden}
+.catrow .cbar i{display:block;height:100%;border-radius:6px}
+.catrow b{width:28px;text-align:right;font-size:13px}
+.energywrap,.notes{border:1px solid var(--line);background:var(--panel2);border-radius:16px;padding:18px;margin-top:14px}
+.energywrap h3,.notes h3{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin:0 0 12px}
+#energy{width:100%;height:120px;display:block}
+.notes ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.notes li{font-size:13.5px;line-height:1.5;color:var(--txt)}
+.notes li::marker{color:var(--koi)}
+
+/* PRINT: PDF report = only the score/meters/spectrum/notes */
+@media print{
+  body{background:#fff!important;color:#000}
+  nav,.hero,#why,.tabs,.ctxbar,.chatcard,#tab-reference,#tab-history,#status,.player,#pdfBtn,
+  section:not(#app),footer,#stars,.label,#app>.wrap>h2{display:none!important}
+  #app{padding:0}.reptop,.energywrap,.notes,.specwrap,.meter{border-color:#ccc;background:#fff!important;box-shadow:none}
+  .meter,.catrow span,.ringnum span{color:#333}.notes li{color:#000}
+}
 
 /* FEATURES */
 .feat{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:880px;margin:0 auto}
@@ -229,7 +260,7 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
         <circle cx="43.8" cy="17.2" r=".8" fill="#fff"/><circle cx="57.8" cy="17.2" r=".8" fill="#fff"/>
       </g>
     </svg>
-  </div><span>KOIBOI</span> <b>Mixing AI Analyzer</b></div>
+  </div><span>KOIBOI</span> <b>Mixing &amp; Mastering Analyzer</b></div>
   <button class="pill" onclick="document.getElementById('app').scrollIntoView()">Try it now</button>
 </div></nav>
 
@@ -238,7 +269,7 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
   <div class="wrap">
     <div class="herokoi" id="herokoi"></div>
     <div class="eyebrow"><span class="dot"></span> AI mixing analysis · runs in your browser</div>
-    <h1>KOIBOI<br><em>Mixing AI Analyzer</em></h1>
+    <h1>KOIBOI<br><em>Mixing &amp; Mastering Analyzer</em></h1>
     <p class="lead">Drop a track. Get instant feedback on mix quality, frequency balance, dynamics and stereo image — then ask the AI exactly what to fix.</p>
     <div class="cta-row">
       <button class="btn-koi" onclick="document.getElementById('app').scrollIntoView()">Analyze a track →</button>
@@ -302,6 +333,7 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
       <div id="status"></div>
 
       <div id="resCard" style="display:none">
+        <div id="report"></div>
         <div class="readout" id="meters"></div>
         <div class="specwrap">
           <h3>Frequency Balance</h3>
@@ -311,6 +343,7 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
             <span>1k</span><span>2k</span><span>4k</span><span>8k</span><span>16k</span>
           </div>
         </div>
+        <div style="text-align:center;margin-top:18px"><button class="btn-ghost" id="pdfBtn">⬇ Download PDF report</button></div>
       </div>
 
       <div class="chatcard">
@@ -409,7 +442,7 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
 </section>
 
 <footer>
-  KOIBOI Mixing AI Analyzer · analysis runs in your browser · API key never leaves this page<br>
+  KOIBOI Mixing &amp; Mastering Analyzer · analysis runs in your browser · API key never leaves this page<br>
   <a href="#">Privacy</a> · <a href="https://instagram.com/koiboi">@koiboi</a>
 </footer>
 
@@ -474,7 +507,7 @@ async function handle(file){
   report=analyze(audio,file.name);
   $('#dropState').style.display='none';$('#playState').style.display='block';
   $('#fname').textContent=file.name;$('#tdur').textContent=fmt(report.dur);
-  buildPeaks(audio);drawWave(0);drawSpec(report.bandNorm);renderMeters(report);renderTags();
+  buildPeaks(audio);drawWave(0);drawSpec(report.bandNorm);renderMeters(report);renderTags();renderReport(report);
   $('#resCard').style.display='block';
   $('#status').textContent='✓ '+file.name+' · '+report.dur.toFixed(1)+'s · '+(audio.sampleRate/1000)+'kHz · '+(audio.numberOfChannels>1?'stereo':'mono');
   saveRev(report);
@@ -484,10 +517,16 @@ async function handle(file){
 function analyze(audio,name){
   const sr=audio.sampleRate,L=audio.getChannelData(0),
         R=audio.numberOfChannels>1?audio.getChannelData(1):L,N=L.length;
-  let peak=0,sumSq=0;
-  for(let i=0;i<N;i++){const m=(L[i]+R[i])*.5,a=Math.abs(m);if(a>peak)peak=a;sumSq+=m*m;}
+  let peak=0,sumSq=0,clipN=0;
+  for(let i=0;i<N;i++){const m=(L[i]+R[i])*.5,a=Math.abs(m);if(a>peak)peak=a;sumSq+=m*m;
+    if(Math.abs(L[i])>=0.997||Math.abs(R[i])>=0.997)clipN++;}
   const rms=Math.sqrt(sumSq/N),dbPeak=20*Math.log10(peak||1e-9),dbRms=20*Math.log10(rms||1e-9);
-  const crest=dbPeak-dbRms,lufs=dbRms-0.691;
+  const crest=dbPeak-dbRms,lufs=dbRms-0.691,clip=clipN/N*100;
+  // energy across the track (RMS over time)
+  const ePts=140,eBlock=Math.max(1,Math.floor(N/ePts)),energy=[];
+  for(let p=0;p<ePts;p++){let s2=0,c=0,off=p*eBlock;
+    for(let i=0;i<eBlock;i+=8){const m=(L[off+i]+R[off+i])*.5;s2+=m*m;c++;}
+    energy.push(Math.sqrt(s2/(c||1)));}
   let lr=0,ll=0,rr=0,st=Math.max(1,(N/200000)|0);
   for(let i=0;i<N;i+=st){lr+=L[i]*R[i];ll+=L[i]*L[i];rr+=R[i]*R[i];}
   const corr=audio.numberOfChannels>1?lr/(Math.sqrt(ll*rr)||1e-9):1;
@@ -504,7 +543,41 @@ function analyze(audio,name){
   }
   const bd=bands.map(v=>10*Math.log10((v/(frames||1))||1e-9)),mx=Math.max(...bd),bandNorm=bd.map(v=>v-mx);
   const low=(bandNorm[0]+bandNorm[1]+bandNorm[2])/3,mid=(bandNorm[4]+bandNorm[5])/2,hi=(bandNorm[7]+bandNorm[8])/2;
-  return {name,dur:N/sr,dbPeak,lufs,crest,width,corr,bandNorm,low,mid,hi,channels:audio.numberOfChannels,sr};
+  const mud=bandNorm[3]-mid, harsh=((bandNorm[6]+bandNorm[7])/2)-mid; // 250Hz vs mids; 2-4k vs mids
+  return {name,dur:N/sr,dbPeak,lufs,crest,width,corr,bandNorm,low,mid,hi,mud,harsh,clip,energy,channels:audio.numberOfChannels,sr};
+}
+
+// ---------- scoring engine (genre-aware) ----------
+const TARGETS={default:{lufs:-9,crest:9,width:35},
+  Psytrance:{lufs:-7,crest:7,width:30},EDM:{lufs:-7,crest:7,width:35},Techno:{lufs:-8,crest:7,width:28},House:{lufs:-8,crest:8,width:35},
+  Pop:{lufs:-9,crest:9,width:40},'Hip Hop':{lufs:-9,crest:8,width:30},Rock:{lufs:-9,crest:10,width:40},Metal:{lufs:-8,crest:8,width:38},
+  RnB:{lufs:-10,crest:10,width:35},Blues:{lufs:-12,crest:12,width:35},Jazz:{lufs:-14,crest:14,width:40},Country:{lufs:-11,crest:11,width:38},
+  Classical:{lufs:-18,crest:16,width:45},Cinematic:{lufs:-16,crest:15,width:50},Ambient:{lufs:-16,crest:14,width:50}};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function scoreMix(r,genre){
+  const t=TARGETS[genre]||TARGETS.default;
+  const loud=clamp(100-Math.abs(r.lufs-t.lufs)*7,0,100);
+  let dyn=r.crest>=t.crest?100-clamp((r.crest-t.crest)*3,0,20):100-(t.crest-r.crest)*9; dyn=clamp(dyn,0,100);
+  const tonal=clamp(100-clamp(r.mud-2,0,30)*4-clamp(r.harsh-2,0,30)*3,0,100);
+  const ster=clamp(100-Math.abs(r.width-t.width)*1.6-clamp((0.2-r.corr)*120,0,60),0,100);
+  const clean=clamp(100-(r.dbPeak>-0.3?25:0)-clamp(r.clip*40,0,70),0,100);
+  const cats=[['Loudness',loud],['Dynamics',dyn],['Tonal Balance',tonal],['Stereo',ster],['Cleanliness',clean]];
+  const overall=Math.round(loud*.2+dyn*.22+tonal*.24+ster*.16+clean*.18);
+  return {overall,cats,t};
+}
+function mixNotes(r,s){
+  const t=s.t,n=[];
+  if(r.dbPeak>-0.3) n.push(`Peaks at ${r.dbPeak.toFixed(1)} dB — clipping risk. Pull the ceiling to −1.0 dBTP.`);
+  if(r.clip>0.01) n.push(`Hard clipping on ~${r.clip.toFixed(2)}% of samples — limiter is over-driven.`);
+  if(r.lufs>t.lufs+2) n.push(`Loud at ${r.lufs.toFixed(1)} LUFS vs ~${t.lufs} for this genre — ease limiting ~${(r.lufs-t.lufs).toFixed(0)} dB for punch.`);
+  else if(r.lufs<t.lufs-3) n.push(`Quiet — ${r.lufs.toFixed(1)} LUFS, ${Math.abs(r.lufs-t.lufs).toFixed(0)} dB under genre norm. Push level / limiting.`);
+  if(r.crest<t.crest-3) n.push(`Over-compressed — crest only ${r.crest.toFixed(1)} dB (target ~${t.crest}). Back off bus compression.`);
+  if(r.mud>3) n.push(`Low-mid buildup ~200–300 Hz (muddiness). Try a gentle 2–3 dB cut.`);
+  if(r.harsh>3) n.push(`Harsh upper-mids (2–5 kHz). De-ess / dip ~3 dB.`);
+  if(r.width>70) n.push(`Very wide (${r.width}%). Check mono compatibility before mastering.`);
+  if(r.corr<0.2) n.push(`Mono-compat risk — correlation ${r.corr.toFixed(2)}; content may cancel in mono.`);
+  if(!n.length) n.push('Clean, well-balanced mix — no red flags against genre targets. Trust your ears for the final 5%.');
+  return n.slice(0,7);
 }
 
 // ---------- waveform ----------
@@ -547,6 +620,36 @@ function drawSpec(b){const c=$('#spec'),x=c.getContext('2d'),W=c.width,H=c.heigh
     x.fillStyle='rgba(248,250,252,.55)';x.font='10px "JetBrains Mono"';x.textAlign='center';
     x.fillText(Math.round(b[i]),px+pw/2,Math.max(12,H-h-6));}}
 
+// ---------- report (score / breakdown / energy / notes) ----------
+const scoreColor=v=>v>=80?'#3ad07a':v>=60?'#ffcf4d':v>=40?'#ff9a3d':'#ff5d6c';
+function renderReport(r){
+  const s=scoreMix(r,$('#genre').value);r.score=s.overall;
+  const C=2*Math.PI*52, off=C*(1-s.overall/100), col=scoreColor(s.overall);
+  const bars=s.cats.map(([n,v])=>`<div class="catrow"><span>${n}</span>
+    <div class="cbar"><i style="width:${v}%;background:${scoreColor(v)}"></i></div><b style="color:${scoreColor(v)}">${Math.round(v)}</b></div>`).join('');
+  const notes=mixNotes(r,s).map(t=>`<li>${t.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</li>`).join('');
+  $('#report').innerHTML=`
+    <div class="reptop">
+      <div class="ring">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" stroke="#1c1c1c" stroke-width="12" fill="none"/>
+          <circle cx="60" cy="60" r="52" stroke="${col}" stroke-width="12" fill="none" stroke-linecap="round"
+            stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/></svg>
+        <div class="ringnum"><b style="color:${col}">${s.overall}</b><span>/100</span></div>
+      </div>
+      <div class="breakdown">${bars}</div>
+    </div>
+    <div class="energywrap"><h3>Energy across the track</h3><canvas id="energy" width="1040" height="120"></canvas></div>
+    <div class="notes"><h3>Mix Notes</h3><ul>${notes}</ul></div>`;
+  drawEnergy(r.energy);
+}
+function drawEnergy(e){const c=$('#energy');if(!c)return;const x=c.getContext('2d'),W=c.width,H=c.height,mx=Math.max(...e)||1;
+  x.clearRect(0,0,W,H);const g=x.createLinearGradient(0,0,W,0);g.addColorStop(0,'#ff5a1f');g.addColorStop(1,'#1fd6c9');
+  x.beginPath();x.moveTo(0,H);for(let i=0;i<e.length;i++){const px=i/(e.length-1)*W,py=H-(e[i]/mx)*H*.92;i?x.lineTo(px,py):x.moveTo(px,py);}
+  x.lineTo(W,H);x.closePath();x.globalAlpha=.18;x.fillStyle=g;x.fill();x.globalAlpha=1;
+  x.beginPath();for(let i=0;i<e.length;i++){const px=i/(e.length-1)*W,py=H-(e[i]/mx)*H*.92;i?x.lineTo(px,py):x.moveTo(px,py);}
+  x.strokeStyle=g;x.lineWidth=2;x.stroke();}
+$('#pdfBtn').onclick=()=>window.print();
+
 // ---------- chat ----------
 const q=$('#q'),log=$('#log'),engine=$('#engine'),estatus=$('#estatus'),gkey=$('#gkey');
 let HASBACKEND=false;
@@ -576,9 +679,11 @@ function add(role,txt,box){box=box||log;const d=document.createElement('div');d.
   d.innerHTML=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
   box.appendChild(d);box.scrollTop=box.scrollHeight;return d;}
 function summary(r){if(!r)return'No track analyzed yet.';
+  const s=scoreMix(r,$('#genre').value);
   return `Track: ${r.name} (${r.dur.toFixed(1)}s, ${r.channels>1?'stereo':'mono'}, ${r.sr}Hz)
-Loudness: ${r.lufs.toFixed(1)} LUFS | True peak: ${r.dbPeak.toFixed(1)} dB | Crest: ${r.crest.toFixed(1)} dB
-Stereo width: ${r.width}% (corr ${r.corr.toFixed(2)})
+SCORE ${s.overall}/100 — ${s.cats.map(([n,v])=>n+' '+Math.round(v)).join(', ')}
+Loudness: ${r.lufs.toFixed(1)} LUFS | True peak: ${r.dbPeak.toFixed(1)} dB | Crest: ${r.crest.toFixed(1)} dB | Clipping: ${r.clip.toFixed(2)}%
+Stereo width: ${r.width}% (corr ${r.corr.toFixed(2)}) | Muddiness idx: ${r.mud.toFixed(1)} | Harshness idx: ${r.harsh.toFixed(1)}
 Tonal balance vs loudest band: low(20-120)=${r.low.toFixed(1)}dB, mid(500-2k)=${r.mid.toFixed(1)}dB, high(4-16k)=${r.hi.toFixed(1)}dB
 10 bands [20,60,120,250,500,1k,2k,4k,8k,16k]: ${r.bandNorm.map(v=>v.toFixed(1)).join(', ')}`;}
 function ctxLine(){
@@ -668,7 +773,7 @@ async function decodeAnalyze(file){
 // ---------- revision history ----------
 function saveRev(r){
   const revs=JSON.parse(localStorage.getItem('koi_revs')||'[]');
-  revs.unshift({name:r.name,t:Date.now(),genre:$('#genre').value,
+  revs.unshift({name:r.name,t:Date.now(),genre:$('#genre').value,score:r.score??null,
     lufs:+r.lufs.toFixed(1),peak:+r.dbPeak.toFixed(1),crest:+r.crest.toFixed(1),width:r.width});
   localStorage.setItem('koi_revs',JSON.stringify(revs.slice(0,40)));
 }
@@ -676,7 +781,9 @@ function renderRevs(){
   const revs=JSON.parse(localStorage.getItem('koi_revs')||'[]'),el=$('#revlist');
   if(!revs.length){el.innerHTML='<div class="revempty">No analyses yet — run one in Mix Feedback.</div>';return;}
   el.innerHTML=revs.map(v=>`<div class="revcard">
-    <div><div class="rn">${v.name}</div><div class="rd">${new Date(v.t).toLocaleString()} · ${v.genre}</div></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      ${v.score!=null?`<div class="revscore" style="color:${scoreColor(v.score)};border-color:${scoreColor(v.score)}">${v.score}</div>`:''}
+      <div><div class="rn">${v.name}</div><div class="rd">${new Date(v.t).toLocaleString()} · ${v.genre}</div></div></div>
     <div class="rm"><span>LUFS <b>${v.lufs}</b></span><span>Peak <b>${v.peak}</b></span><span>Crest <b>${v.crest}</b></span><span>Width <b>${v.width}%</b></span></div>
   </div>`).join('')
     +'<div style="text-align:center;margin-top:8px"><button class="btn-ghost" id="clrRev">Clear history</button></div>';
