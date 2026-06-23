@@ -52,6 +52,10 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 .pill{background:#fff;color:#000;border:0;padding:8px 20px;border-radius:999px;font-family:inherit;
   font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 1px 0 #ddd inset,0 4px 14px rgba(255,255,255,.06)}
 .pill:hover{background:#eee}
+.navright{display:flex;align-items:center;gap:14px}
+.soc{width:22px;height:22px;color:var(--mut);display:grid;place-items:center;transition:.15s}
+.soc svg{width:22px;height:22px}
+.soc:hover{color:var(--koi);transform:translateY(-1px)}
 
 /* HERO */
 .hero{position:relative;overflow:hidden;padding:90px 0 70px}
@@ -271,7 +275,15 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
       </g>
     </svg>
   </div><span>KOIBOI</span> <b>Mixing &amp; Mastering Analyzer</b></div>
-  <button class="pill" onclick="document.getElementById('app').scrollIntoView()">Try it now</button>
+  <div class="navright">
+    <a class="soc" href="https://soundcloud.com/koi-boi" target="_blank" rel="noopener" title="SoundCloud" aria-label="SoundCloud">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="11" width="1.7" height="6" rx=".8"/><rect x="6.2" y="9" width="1.7" height="8" rx=".8"/><rect x="9.4" y="7" width="1.7" height="10" rx=".8"/><path d="M13 17V9.3A5 5 0 0 1 18.5 11 3 3 0 0 1 18 17h-5z"/></svg>
+    </a>
+    <a class="soc" href="https://www.instagram.com/koiboi" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.4"/><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <button class="pill" onclick="document.getElementById('app').scrollIntoView()">Try it now</button>
+  </div>
 </div></nav>
 
 <!-- HERO -->
@@ -453,7 +465,7 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
 
 <footer>
   <div class="social">
-    <a href="https://soundcloud.com/koiboi" target="_blank" rel="noopener">SoundCloud</a> ·
+    <a href="https://soundcloud.com/koi-boi" target="_blank" rel="noopener">SoundCloud</a> ·
     <a href="https://instagram.com/koiboi" target="_blank" rel="noopener">Instagram</a> ·
     <a href="https://youtube.com/@koiboi" target="_blank" rel="noopener">YouTube</a> ·
     <a href="https://t.me/koiboi" target="_blank" rel="noopener">Telegram</a>
