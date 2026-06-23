@@ -336,8 +336,13 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
           <option>Classical</option><option>Cinematic</option><option>Ambient</option>
         </select>
       </label>
-      <label>DAW <input id="daw" placeholder="e.g. Bitwig"></label>
-      <label>Plugins <input id="plugins" placeholder="e.g. Pro-Q, Ozone"></label>
+      <label>DAW
+        <select id="daw">
+          <option>Bitwig</option><option>Ableton Live</option><option>Cubase</option><option>Pro Tools</option>
+          <option>FL Studio</option><option>Logic Pro</option><option>Studio One</option><option>Reaper</option>
+          <option>Reason</option><option>Other</option>
+        </select>
+      </label>
       <label>Reply in
         <select id="lang"><option>English</option><option>Hebrew</option><option>Spanish</option><option>Portuguese</option><option>German</option><option>Polish</option></select>
       </label>
@@ -831,10 +836,8 @@ Stereo width: ${r.width}% (corr ${r.corr.toFixed(2)}) | Muddiness idx: ${r.mud.t
 Tonal balance vs loudest band: low(20-120)=${r.low.toFixed(1)}dB, mid(500-2k)=${r.mid.toFixed(1)}dB, high(4-16k)=${r.hi.toFixed(1)}dB
 10 bands [20,60,120,250,500,1k,2k,4k,8k,16k]: ${r.bandNorm.map(v=>v.toFixed(1)).join(', ')}`;}
 function ctxLine(){
-  const g=$('#genre').value,d=$('#daw').value.trim(),p=$('#plugins').value.trim(),l=$('#lang').value;
-  let s='Genre: '+g+'.';
-  if(d) s+=' DAW: '+d+'.';
-  if(p) s+=' Plugins on the mix bus / used: '+p+'.';
+  const g=$('#genre').value,d=$('#daw').value,l=$('#lang').value;
+  let s='Genre: '+g+'. DAW: '+d+'.';
   if(l&&l!=='English') s+=' IMPORTANT: reply in '+l+'.';
   return s;
 }
