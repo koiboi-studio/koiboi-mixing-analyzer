@@ -592,6 +592,10 @@ async function handle(file){
   const pl=$('#player');pl.src=URL.createObjectURL(file);
   const ac=new (window.AudioContext||window.webkitAudioContext)();
   const audio=await ac.decodeAudioData(await file.arrayBuffer());
+  showTrackAnalysis(file,audio);
+}
+
+function showTrackAnalysis(file,audio){
   report=analyze(audio,file.name);
   $('#dropState').style.display='none';$('#playState').style.display='block';
   $('#fname').textContent=file.name;$('#tdur').textContent=fmt(report.dur);
@@ -908,11 +912,12 @@ async function ask(){
 }
 
 // ---------- tabs ----------
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
-  document.querySelectorAll('.tabpane').forEach(p=>p.style.display=p.id==='tab-'+t.dataset.tab?'block':'none');
-  if(t.dataset.tab==='history') renderRevs();
-});
+function activateTab(name){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===name));
+  document.querySelectorAll('.tabpane').forEach(p=>p.style.display=p.id==='tab-'+name?'block':'none');
+  if(name==='history') renderRevs();
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>activateTab(t.dataset.tab));
 
 // ---------- shared decode helper ----------
 async function decodeAnalyze(file){
@@ -1089,8 +1094,10 @@ async function loadMaster(file){
   const ac=new (window.AudioContext||window.webkitAudioContext)();
   mBuf=await ac.decodeAudioData(await file.arrayBuffer());
   if(mOrigUrl)URL.revokeObjectURL(mOrigUrl);mOrigUrl=URL.createObjectURL(file);
-  mParams=deriveMaster(analyze(mBuf,file.name));
+  showTrackAnalysis(file,mBuf);
+  mParams=deriveMaster(report);
   $('#dropM').classList.add('done');$('#dropM').textContent='✓ '+file.name;
+  activateTab('feedback');
   $('#masterUI').style.display='block';await renderMaster();
 }
 $('#dropM').onclick=()=>$('#fileM').click();
