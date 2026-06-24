@@ -200,6 +200,19 @@ h2{font-size:clamp(28px,4.5vw,46px);font-weight:700;text-align:center;margin:0 0
 .abbtn{background:#0a0a0a;border:1px solid var(--line2);color:var(--mut);font-family:inherit;font-size:13px;
   padding:11px 20px;border-radius:999px;cursor:pointer}
 .abbtn.on{border-color:var(--koi);color:var(--koi)}
+.mpanel{border:1px solid var(--line);background:var(--panel2);border-radius:14px;padding:16px;margin-bottom:16px}
+.mphead{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin-bottom:14px;text-align:center}
+.mphead em{font-style:normal;color:var(--dim);text-transform:none;letter-spacing:0}
+.mmoves{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:640px){.mmoves{grid-template-columns:repeat(2,1fr)}}
+.moverow{display:flex;align-items:center;gap:8px;background:#0a0a0a;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.moverow .mn{font-size:11px;color:var(--mut);flex:1}
+.moverow .mv{font-size:13px;min-width:54px;text-align:center;color:var(--koi2)}
+.mstep{width:24px;height:24px;border-radius:7px;border:1px solid var(--line2);background:#111;color:var(--txt);cursor:pointer;font-size:14px;line-height:1;flex:none}
+.mstep:hover{border-color:var(--koi);color:var(--koi)}
+.mresult{border:1px solid var(--line2);background:linear-gradient(180deg,rgba(255,90,31,.05),transparent);border-radius:14px;padding:18px;margin-top:18px;text-align:center}
+#playerM{width:100%;margin:14px 0;filter:saturate(.85)}
+.btn-koi.big{padding:14px 30px;font-size:15px;width:100%;max-width:340px}
 .mmatch{display:flex;align-items:center;gap:8px;justify-content:center;font-size:13px;color:var(--txt);margin-bottom:14px;cursor:pointer}
 .mmatch input{accent-color:var(--koi);width:15px;height:15px}
 .mmatch em{font-style:normal;color:var(--dim);font-size:11px}
@@ -434,7 +447,15 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
           <div class="ttl"><span id="mtcur">0:00</span><span id="mtdur">0:00</span></div>
         </div>
         <div class="mab" id="mab"></div>
+
+        <div class="mpanel">
+          <div class="mphead">🎚️ Master moves <em>— this is what the AI / your words change</em></div>
+          <div class="mmoves" id="mmoves"></div>
+        </div>
+
         <label class="mmatch"><input type="checkbox" id="matchRef"> 🎯 Match tonal balance to reference <em>(load a track in Reference Compare first)</em></label>
+
+        <div class="mphead" style="text-align:center;margin-bottom:10px">💬 Tell the master what to change</div>
         <div class="mchips">
           <button data-cmd="more bass">＋ Bass</button>
           <button data-cmd="less bass">－ Bass</button>
@@ -446,18 +467,22 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
           <button data-cmd="quieter">－ Loud</button>
         </div>
         <div class="mcmdrow">
-          <input id="mcmd" placeholder="tell me what to change… e.g. more low end, less bright, louder">
-          <button class="btn-ghost" id="mcmdGo">Apply</button>
+          <input id="mcmd" placeholder="e.g. take the low end down a bit, more air, louder">
+          <button class="btn-koi" id="mcmdGo">Apply</button>
         </div>
-        <div class="abrow">
-          <button class="abbtn" id="abOrig">▶ Original</button>
-          <button class="abbtn on" id="abMaster">▶ Mastered</button>
-          <button class="btn-koi" id="dlMaster">⬇ Download mastered WAV</button>
+
+        <div class="mresult">
+          <div class="mphead" style="margin-bottom:12px">🎧 Result — listen, compare, download</div>
+          <div class="abrow">
+            <button class="abbtn" id="abOrig">▶ Original</button>
+            <button class="abbtn on" id="abMaster">▶ Mastered</button>
+          </div>
+          <audio id="playerM" controls></audio>
+          <button class="btn-koi big" id="dlMaster">⬇ Download mastered WAV</button>
+          <div id="mstatus" class="hint" style="text-align:center;margin-top:10px"></div>
         </div>
-        <div id="mstatus" class="hint" style="text-align:center;margin-top:12px"></div>
       </div>
       <input id="fileM" type="file" accept="audio/*" hidden>
-      <audio id="playerM" hidden></audio>
     </div>
 
     <!-- REFERENCE TAB -->
@@ -533,12 +558,6 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
 </section>
 
 <footer>
-  <div class="social">
-    <a href="https://soundcloud.com/koi-boi" target="_blank" rel="noopener">SoundCloud</a> ·
-    <a href="https://instagram.com/koiboi" target="_blank" rel="noopener">Instagram</a> ·
-    <a href="https://youtube.com/@koiboi" target="_blank" rel="noopener">YouTube</a> ·
-    <a href="https://t.me/koiboi" target="_blank" rel="noopener">Telegram</a>
-  </div>
   KOIBOI Mixing &amp; Mastering Analyzer · analysis runs in your browser · API key never leaves this page
 </footer>
 
@@ -1085,6 +1104,7 @@ async function renderMaster(){
   let limited,lufs;
   for(let pass=0;pass<3;pass++){
     const rendered=await applyMaster(mBuf,mParams);
+    await new Promise(r=>setTimeout(r)); // yield so the spinner paints (heavy DSP below is synchronous)
     const chans=[];for(let c=0;c<rendered.numberOfChannels;c++)chans.push(Float32Array.from(rendered.getChannelData(c)));
     limited=limitTP(chans,sr,ceilDb);
     lufs=measureLUFS(blike(limited,sr));
@@ -1100,8 +1120,16 @@ async function renderMaster(){
     ['Crest (dynamics)',bef.crest.toFixed(1),aft.crest.toFixed(1),'dB'],
     ['Stereo width',bef.width,aft.width,'%']]
     .map(([n,b,a,u])=>`<div class="mabcell"><div class="k">${n}</div><div class="v">${b} <span>→</span> <b>${a}</b> <small>${u}</small></div></div>`).join('');
-  setAB(true);
-  $('#mstatus').textContent='✓ Mastered to '+lufs.toFixed(1)+' LUFS-I · true-peak '+tp.toFixed(1)+' dBTP'+(mParams.match?' · matched to reference':'')+' · EQ low '+mParams.low.toFixed(1)+'/air '+mParams.air.toFixed(1)+' dB · glue '+mParams.compRatio.toFixed(1)+':1';
+  setAB(true);renderMoves();
+  $('#mstatus').textContent='✓ Mastered to '+lufs.toFixed(1)+' LUFS-I · true-peak '+tp.toFixed(1)+' dBTP'+(mParams.match?' · matched to reference':'');
+}
+function renderMoves(){
+  const m=mParams,rows=[['Low','low','dB'],['Air','air','dB'],['Low-mid','mud','dB'],['Presence','harsh','dB'],['Loudness','gain','dB'],['Glue','compRatio',':1']];
+  $('#mmoves').innerHTML=rows.map(([n,k,u])=>{const v=m[k];
+    const disp=(k==='compRatio')?v.toFixed(1)+u:(v>0?'+':'')+v.toFixed(1)+' '+u;
+    return `<div class="moverow"><span class="mn">${n}</span><button class="mstep" data-k="${k}" data-d="-1">−</button><b class="mv">${disp}</b><button class="mstep" data-k="${k}" data-d="1">＋</button></div>`;}).join('');
+  $('#mmoves').querySelectorAll('.mstep').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k;mParams[k]+=(+b.dataset.d)*(k==='compRatio'?0.3:1.5);clampParams(mParams);renderMaster();});
 }
 function setAB(master){const pm=$('#playerM'),t=pm.currentTime||0,playing=!pm.paused;
   pm.src=master?mOutUrl:mOrigUrl;pm.currentTime=t;if(playing)pm.play();
