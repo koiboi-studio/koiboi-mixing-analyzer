@@ -288,7 +288,10 @@ body.locked .tabs,body.locked .tabpane{display:none!important}
 .gicon{font-size:40px;margin-bottom:14px}
 .gatebox h3{margin:0 0 12px;font-size:24px}
 .gatebox p{color:var(--mut);font-size:14px;line-height:1.6;margin:0 0 22px}
-.grestore{color:var(--dim);font-size:11px;margin-top:16px}
+.grestore{color:var(--dim);font-size:12px;margin-top:14px;min-height:14px}
+.gcode{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.gcode input{background:#0a0a0a;border:1px solid var(--line2);color:var(--txt);font-family:inherit;font-size:13px;padding:10px 13px;border-radius:10px;width:180px}
+.gcode input:focus{outline:0;border-color:var(--koi)}
 
 /* PRICING */
 .plans{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:760px;margin:0 auto}
@@ -394,6 +397,21 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
       <button class="tab" data-tab="master">🎛️ Auto-Master</button>
       <button class="tab" data-tab="reference">🎯 Reference Compare</button>
       <button class="tab" data-tab="history">🕓 History</button>
+    </div>
+
+    <!-- $3 PAYWALL -->
+    <div id="gate" style="display:none">
+      <div class="gatebox">
+        <div class="gicon">🔒</div>
+        <h3>KOIBOI Pro — $3</h3>
+        <p>A one-time $3 unlocks the full analyzer: mix scoring, Auto-Master + WAV export, reference compare and every AI engine.</p>
+        <a class="btn-koi big" href="https://paypal.me/koiboimusic/3" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">💸 Pay $3 · PayPal</a>
+        <div class="gcode">
+          <input id="codeIn" placeholder="Access code" autocomplete="off">
+          <button class="btn-ghost" id="codeGo">Unlock</button>
+        </div>
+        <div id="codeMsg" class="grestore">After paying, enter the access code you receive.</div>
+      </div>
     </div>
 
     <!-- FEEDBACK TAB -->
@@ -1212,10 +1230,17 @@ $('#abOrig').onclick=()=>{setAB(false);$('#playerM').play();};
 $('#abMaster').onclick=()=>{setAB(true);$('#playerM').play();};
 $('#dlMaster').onclick=()=>{if(!mOutUrl)return;const a=document.createElement('a');a.href=mOutUrl;a.download='koiboi-master.wav';a.click();};
 
-// ---------- PayPal subscriptions ($3/mo · $12/yr) ----------
-// Fill these 3 values from your PayPal BUSINESS account (paypal.com → Pay & Get Paid → Subscriptions):
-//   CLIENT_ID = your app client-id (Developer Dashboard → Apps & Credentials → Live)
-//   PLAN_MONTHLY / PLAN_YEARLY = the plan IDs (P-xxxx…) of the $3/mo and $12/yr plans you create
+// ---------- $3 paywall (pay via paypal.me/koiboimusic/3 → enter access code) ----------
+const CODE_HASH='f89645dbb866b91b34bf966d5055419daff4759b1f5d47e41a57bcd3258e8958'; // sha256("koi3pro")
+(function(){const p=new URLSearchParams(location.search);if(p.get('owner')==='koi-boi-2026')localStorage.setItem('koi_pro','owner');})();
+function isPro(){return !!localStorage.getItem('koi_pro');}
+function applyGate(){const locked=!isPro();document.body.classList.toggle('locked',locked);$('#gate').style.display=locked?'flex':'none';}
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+$('#codeGo').onclick=async()=>{const v=$('#codeIn').value.trim();if(!v)return;
+  if(await sha256(v.toLowerCase())===CODE_HASH){localStorage.setItem('koi_pro','code');$('#codeMsg').textContent='✓ Unlocked — enjoy!';applyGate();document.getElementById('app').scrollIntoView();}
+  else $('#codeMsg').textContent='✗ Wrong code.';};
+$('#codeIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#codeGo').click();}});
+applyGate();
 </script>
 </body>
 </html>
