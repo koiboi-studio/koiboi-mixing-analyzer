@@ -396,17 +396,6 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
       <button class="tab" data-tab="history">🕓 History</button>
     </div>
 
-    <!-- PAYWALL GATE (auto-activates once PayPal is wired; owner is exempt) -->
-    <div id="gate" style="display:none">
-      <div class="gatebox">
-        <div class="gicon">🔒</div>
-        <h3>KOIBOI Pro</h3>
-        <p>Unlimited mix analysis, Auto-Master + WAV export, reference compare and every AI engine — $3/month or $12/year.</p>
-        <button class="btn-koi" onclick="document.getElementById('pricing').scrollIntoView()">See plans →</button>
-        <div class="grestore">Already subscribed on this device? It unlocks automatically after payment.</div>
-      </div>
-    </div>
-
     <!-- FEEDBACK TAB -->
     <div class="tabpane" id="tab-feedback">
       <div class="player">
@@ -586,22 +575,14 @@ footer a{color:var(--mut)}footer a:hover{color:var(--txt)}
     <div class="label">Pricing</div>
     <h2>Go Pro</h2>
     <p class="sectsub">Unlimited analysis + Auto-Master. Cancel anytime. Payments go straight to KOI BOI via PayPal.</p>
-    <div class="plans">
-      <div class="plan">
-        <div class="pname">Monthly</div>
-        <div class="pprice">$3<small>/mo</small></div>
-        <ul><li>Unlimited mixes</li><li>Auto-Master + WAV export</li><li>Reference compare</li><li>All AI engines</li></ul>
-        <div id="pp-monthly" class="ppbtn"></div>
-      </div>
+    <div class="plans" style="grid-template-columns:1fr;max-width:380px">
       <div class="plan best">
-        <div class="ptag">Save 67%</div>
-        <div class="pname">Yearly</div>
-        <div class="pprice">$12<small>/yr</small></div>
-        <ul><li>Everything in Monthly</li><li>4 months free</li><li>Priority new features</li></ul>
-        <div id="pp-yearly" class="ppbtn"></div>
+        <div class="pname">Support KOI BOI</div>
+        <div class="pprice">$3</div>
+        <ul><li>Full analysis + scoring</li><li>Auto-Master + WAV export</li><li>Reference compare · all AI engines</li></ul>
+        <a class="btn-koi big" href="https://paypal.me/koiboimusic/3" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">💸 Pay $3 · PayPal</a>
       </div>
     </div>
-    <div id="ppnote" class="hint" style="text-align:center;margin-top:18px"></div>
   </div>
 </section>
 
@@ -1235,27 +1216,6 @@ $('#dlMaster').onclick=()=>{if(!mOutUrl)return;const a=document.createElement('a
 // Fill these 3 values from your PayPal BUSINESS account (paypal.com → Pay & Get Paid → Subscriptions):
 //   CLIENT_ID = your app client-id (Developer Dashboard → Apps & Credentials → Live)
 //   PLAN_MONTHLY / PLAN_YEARLY = the plan IDs (P-xxxx…) of the $3/mo and $12/yr plans you create
-const PAYPAL={clientId:'',monthly:'',yearly:'',me:'koiboimusic'}; // me = paypal.me handle (one-time backup)
-// ---- paywall gate: locks the studio once PayPal is wired; owner (you) is exempt ----
-(function(){const p=new URLSearchParams(location.search);if(p.get('owner')==='koi-boi-2026')localStorage.setItem('koi_owner','1');})();
-function isPro(){return !PAYPAL.clientId||localStorage.getItem('koi_pro')||localStorage.getItem('koi_owner');}
-function applyGate(){const locked=!isPro();document.body.classList.toggle('locked',locked);$('#gate').style.display=locked?'flex':'none';}
-applyGate();
-(function(){
-  const note=$('#ppnote');
-  if(!PAYPAL.clientId||!PAYPAL.monthly){
-    note.innerHTML='⚙ Recurring not wired yet — add your PayPal client-id + plan IDs (see code comment). One-time $3: <a href="https://paypal.me/'+PAYPAL.me+'/3" target="_blank" rel="noopener">paypal.me/'+PAYPAL.me+'/3</a>';
-    return;
-  }
-  const s=document.createElement('script');
-  s.src='https://www.paypal.com/sdk/js?client-id='+PAYPAL.clientId+'&vault=true&intent=subscription';
-  s.onload=()=>{const mk=(sel,plan)=>plan&&paypal.Buttons({style:{shape:'pill',color:'black',label:'subscribe'},
-    createSubscription:(d,a)=>a.subscription.create({plan_id:plan}),
-    onApprove:d=>{localStorage.setItem('koi_pro',d.subscriptionID);applyGate();note.textContent='✓ Subscribed — unlocked. Thank you!';document.getElementById('app').scrollIntoView();}}).render(sel);
-    mk('#pp-monthly',PAYPAL.monthly);mk('#pp-yearly',PAYPAL.yearly);};
-  s.onerror=()=>note.textContent='⚠ PayPal SDK failed to load — check the client-id.';
-  document.body.appendChild(s);
-})();
 </script>
 </body>
 </html>
